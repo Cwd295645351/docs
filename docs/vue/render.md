@@ -6,7 +6,7 @@
 
 在 `Vue3` 中，框架的渲染器会将渲染函数返回的虚拟 DOM 节点渲染成真实 DOM 节点，数据流动实例如下：
 
-![渲染流程](http://qiniu.day10.cn/block/202403271049178.png)
+![渲染流程](http://qiniu.day10.cn/block/202403271114349.png)
 
 ## 虚拟 DOM
 
@@ -106,7 +106,7 @@ export default {
 
 渲染器的作用就是把虚拟 DOM 对象渲染为真实 DOM 元素，如图所示
 
-![渲染器](http://qiniu.day10.cn/block/202403271051758.png)
+![渲染器](http://qiniu.day10.cn/block/202403271114161.png)
 
 它的工作原理是，递归遍历虚拟 DOM 对象，并调用原生 DOM API 来创建真实 DOM 元素，在虚拟 DOM 发生变化时，会通过 `Diff` 算法找出变更点，并只更新需要更新的内容。
 
@@ -177,7 +177,7 @@ function mountComponent(vnode, container) {
 
 `Vue.js` 包含了编译器和渲染器。编译器会将 vue 文件中的 `template` 模板内容编译成渲染函数，并挂载到 `script` 导出的对象中，编译器编译后的渲染函数返回的 DOM 会包含 `patchFlag` 属性，该属性标识了哪些内容是会动态变更的。渲染器会遍历渲染函数返回的 DOM，并生成对应的真实 DOM，在页面内容发生变化时，渲染器会根据 `patchFlag` 属性，动态更新对应内容，从而提升性能。用户可以通过 `h()` 函数动态创建虚拟 DOM并返回。
 
-![vue编译渲染概览](http://qiniu.day10.cn/block/202403271052149.png)
+![vue编译渲染概览](http://qiniu.day10.cn/block/202403271115383.png)
 
 PS. 我们日常使用的 `import { render } from 'vue'` 得到的 `render` 方法，其实是渲染器方法。
 
