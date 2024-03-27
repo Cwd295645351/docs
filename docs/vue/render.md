@@ -4,9 +4,11 @@
 
 `h()` 函数用于创建虚拟 DOM，渲染函数的作用就是返回虚拟 DOM。因此，我们可以在渲染函数中使用 `h()` 创建虚拟 DOM 节点，并将 `h()` 函数创建出来的节点作为渲染函数的结果进行返回。
 
-在 Vue3 中，框架的渲染器会将渲染函数返回的虚拟 DOM 节点渲染成真实 DOM 节点，数据流动实例如下：
+在 `Vue3` 中，框架的渲染器会将渲染函数返回的虚拟 DOM 节点渲染成真实 DOM 节点，数据流动实例如下：
 
-![image.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/298b4d4d5e2e45f99a50a6a998eae9df~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1276&h=716&s=61838&e=png&b=ffffff)
+![](https://gitee.com/YD580230/pic/raw/master/202403271013272.png)
+
+
 
 ## 虚拟 DOM
 
@@ -38,7 +40,7 @@ const vnode = {
 
 `h()`函数接收参数如下：
 
-- `type`：类型参数，必填。内容为字符串或者 Vue 组件定义。
+- `type`：类型参数，必填。内容为字符串或者 `Vue` 组件定义。
 - `props`：props参数，非必填。传递内容是一个对象，对象内容包括了即将创建的节点的属性，例如 `id`、`class`、`style`等，节点的事件监听也是通过 props 参数进行传递，并且以 `on` 开头，以 `onXxx` 的格式进行书写，如 `onInput`、`onClick` 等。
 - `children`：子节点，非必填。内容可以是文本、虚拟 DOM 节点和插槽等等。
 
@@ -106,7 +108,7 @@ export default {
 
 渲染器的作用就是把虚拟 DOM 对象渲染为真实 DOM 元素，如图所示
 
-![image.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/dcbcdbf6bd1244a3ac885478f2427e28~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=973&h=304&s=22033&e=png&b=ffffff)
+![3](https://gitee.com/YD580230/pic/raw/master/202403271014563.png)
 
 它的工作原理是，递归遍历虚拟 DOM 对象，并调用原生 DOM API 来创建真实 DOM 元素，在虚拟 DOM 发生变化时，会通过 `Diff` 算法找出变更点，并只更新需要更新的内容。
 
@@ -177,8 +179,7 @@ function mountComponent(vnode, container) {
 
 `Vue.js` 包含了编译器和渲染器。编译器会将 vue 文件中的 `template` 模板内容编译成渲染函数，并挂载到 `script` 导出的对象中，编译器编译后的渲染函数返回的 DOM 会包含 `patchFlag` 属性，该属性标识了哪些内容是会动态变更的。渲染器会遍历渲染函数返回的 DOM，并生成对应的真实 DOM，在页面内容发生变化时，渲染器会根据 `patchFlag` 属性，动态更新对应内容，从而提升性能。用户可以通过 `h()` 函数动态创建虚拟 DOM并返回。
 
-![image.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bdcadf368c084f2cb0208c4f359dbce3~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1240&h=209&s=24772&e=png&b=ffffff)
+![4](https://gitee.com/YD580230/pic/raw/master/202403271015536.png)
 
 PS. 我们日常使用的 `import { render } from 'vue'` 得到的 `render` 方法，其实是渲染器方法。
-
 
