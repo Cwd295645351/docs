@@ -27,6 +27,7 @@ export default defineConfig((ctx) => ({
       { text: '工程化', link: '/engineer/' },
       { text: '即用代码块', link: '/code/' },
       { text: '掘金文章总览', link: '/juejin/all.html' },
+      { text: '优质文章赏析', link: '/articles/' },
     ],
     smoothScroll: true,
     sidebar: {
