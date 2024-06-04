@@ -180,7 +180,7 @@ customElements.define('my-custom-element', MyCustomElement)
 </script>
 ```
 
-2. 声明式，通过在一个 **<template>** 元素的声明中添加一个 **<style>** 元素。
+2. 声明式，通过在一个 `<template>` 元素的声明中添加一个 `<style>` 元素。
 
 ```html
 <template id="my-element">
