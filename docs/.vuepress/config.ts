@@ -34,7 +34,7 @@ export default defineConfig((ctx) => ({
       '/design/': ['', 'adapter', 'combination', 'decorator', 'chain-of-responsibility', 'publish-subcribe', 'proxy', 'single', 'status', 'strategy'],
       '/vue/': ['', 'pinia', 'vue2', 'vuex', 'render'],
       '/engineer/': ['', 'nvm_nrm'],
-      '/js_ts/': ['', 'typescript', 'curry', 'debounds', 'spread', 'call_apply_bind', 'function_code'],
+      '/js_ts/': ['', 'typescript', 'curry', 'debounds', 'spread', 'call_apply_bind', 'function_code', 'webcomponents'],
       '/code/': ['', 'prettier', 'mongodb', 'nginx', 'postcss', 'pm2', 'git-commit'],
     },
 
