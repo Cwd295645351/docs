@@ -32,8 +32,8 @@ export default defineConfig((ctx) => ({
     smoothScroll: true,
     sidebar: {
       '/design/': ['', 'adapter', 'combination', 'decorator', 'chain-of-responsibility', 'publish-subcribe', 'proxy', 'single', 'status', 'strategy'],
-      '/vue/': ['', 'pinia', 'vue2', 'vuex', 'render'],
-      '/engineer/': ['', 'nvm_nrm'],
+      '/vue/': ['', 'pinia', 'vue2', 'vuex', 'render', 'qiankun'],
+      '/engineer/': ['', 'nvm_nrm', 'tapable'],
       '/js_ts/': ['', 'typescript', 'curry', 'debounds', 'spread', 'call_apply_bind', 'function_code', 'webcomponents', 'GC'],
       '/code/': ['', 'prettier', 'mongodb', 'nginx', 'postcss', 'pm2', 'git-commit'],
     },
