@@ -1,8 +1,24 @@
-# Tapable
+# Tapable 介绍与使用
 
-## 同步钩子
+## 一、引言
 
-### SyncHook：是通过 SyncHook 注册的事件会依次执行
+众所周知，webpack 的 plugins 非常灵活，可以在编译的不同阶段注册事件回调，这个功能便是基于 [Tapable](https://github.com/webpack/tapable) 实现的。
+
+`Tapable` 的使用步骤如下：
+
+1. 创建钩子实例，如 `SyncHook`、`SyncLoopHook` 钩子;
+2. 调用订阅接口注册事件回调，包括 `tap`、`tapAsync`、`tapPromise`;
+3. 触发回调，包括 `call`、`callAsync`、`promise`。
+
+Tapable 的钩子分为同步钩子和异步钩子，同步钩子都以 `Sync` 开头，通过 `tap` 注册回调，使用 `call` 触发回调。异步钩子则以 `Async` 开头，通过 `tapAsync` 和 `callAsync`，或者 `tapPromise` 和 `promise` 来注册和触发回调。
+
+接下来便是各个钩子的介绍和用法。
+
+## 二、同步钩子
+
+### SyncHook
+
+SyncHook 是一个基础的钩子。通过该钩子注册的事件会依次执行。
 
 ```javascript
 const { SyncHook } = require('tapable')
@@ -21,11 +37,11 @@ syncHook.intercept({
   call: (arg1, arg2, arg3) => {
     console.log('Starting to calculate routes')
   },
-  // 在调用被注册的每一个事件函数之前执行
+  // 在调用被注册的每一个事件回调之前执行
   tap: (tap) => {
     console.log(tap, 'tap')
   },
-  // loop类型钩子中 每个事件函数被调用前触发该拦截器方法
+  // loop类型钩子中 每个事件回调被调用前触发该拦截器方法
   loop: (...args) => {
     console.log(args, 'loop')
   },
@@ -62,9 +78,9 @@ Starting to calculate routes
 */
 ```
 
-### SyncBailHook： 是一个保险类型的 Hook。
+### SyncBailHook
 
-只要其中一个事件函数有返回值，后面的事件函数就不执行了
+SyncBailHook 是一个具有熔断风格的钩子。只要其中一个事件回调有返回值，后面的事件回调就不执行了。
 
 ```javascript
 const { SyncBailHook } = require('tapable')
@@ -95,9 +111,9 @@ hook.call('wade', '25')
 
 第二个事件返回了 `outer`，因此第三个事件不会触发。
 
-### SyncLoopHook：是一个循环类型的 Hook。
+### SyncLoopHook
 
-循环类型的含义是不停的循环执行事件函数，直到所有函数结果 **result === undefined**，不符合条件就返回从第一个事件函数开始执行。
+SyncLoopHook 是一个循环类型的钩子。循环类型的含义是不停的循环执行事件回调，直到所有函数结果 **result === undefined**，不符合条件就返回从第一个事件回调开始执行。
 
 ```javascript
 const { SyncLoopHook } = require('tapable')
@@ -156,9 +172,9 @@ hook.call()
 */
 ```
 
-### SyncWaterfallHook：是一个瀑布式类型的 Hook。
+### SyncWaterfallHook
 
-瀑布类型的钩子就是如果前一个事件函数的结果  **result !== undefined**，则 **result** 会作为后一个事件函数的第一个参数（也就是上一个函数的执行结果会成为下一个函数的参数）。
+SyncWaterfallHook 是一个瀑布式类型的钩子。瀑布类型的钩子就是如果前一个事件回调的结果  **result !== undefined**，则 **result** 会作为后一个事件回调的第一个参数（也就是上一个函数的执行结果会成为下一个函数的参数）。
 
 ```javascript
 const { SyncWaterfallHook } = require('tapable')
@@ -188,11 +204,13 @@ hook.call('wade', '25')
 */
 ```
 
-## 异步钩子
+## 三、异步钩子
 
-异步钩子需要通过 **tapAsync** 函数注册事件，同时也会多一个 **callback** 参数，执行 **callback** 告诉 该注册事件已经执行完成。**callback **函数可以传递两个参数** err **和** result**，一旦 **err** 不为空，则后续的事件函数都不再执行。异步钩子触发事件需要使用 **callAsync。**
+异步钩子需要通过 **tapAsync** 函数注册事件，同时也会多一个 **callback** 参数，执行 **callback** 告诉 该注册事件已经执行完成。**callback** 函数可以传递两个参数** err** 和 **result**，一旦 **err** 不为空，则后续的事件回调都不再执行。异步钩子触发事件需要使用 **callAsync**。
 
-### AsyncSeriesHook：是一个串行的钩子
+### AsyncSeriesHook
+
+AsyncSeriesHook 是一个串行的钩子。
 
 ```javascript
 const { AsyncSeriesHook } = require('tapable')
@@ -238,9 +256,9 @@ time: 6.032
 */
 ```
 
-### AsyncSeriesBailHook：是一个串行、保险类型的 hook。
+### AsyncSeriesBailHook
 
-一旦 **callback** 函数传递了参数，则不再执行后续的事件函数**。**
+AsyncSeriesBailHook 是一个串行、熔断类型的钩子。一旦 **callback** 函数传递了参数，则不再执行后续的事件回调。
 
 ```javascript
 const { AsyncSeriesBailHook } = require('tapable')
@@ -285,9 +303,9 @@ time: 3.013s
 */
 ```
 
-### AsyncSeriesWaterfallHook：是一个串行、瀑布式类型的 Hook。
+### AsyncSeriesWaterfallHook
 
-如果前一个事件函数的 **callback **的参数 **result !== undefined**，则 **result** 会作为后一个事件函数的第一个参数（也就是上一个函数的执行结果会成为下一个函数的参数）。
+AsyncSeriesWaterfallHook 是一个串行、瀑布式类型的钩子。如果前一个事件回调的 **callback** 的参数 **result !== undefined**，则 **result** 会作为后一个事件回调的第一个参数（也就是上一个函数的执行结果会成为下一个函数的参数）。
 
 ```javascript
 const { AsyncSeriesHook } = require('tapable')
@@ -333,9 +351,9 @@ time: 6.043s
 */
 ```
 
-### AsyncParallelHook：是一个串行的钩子
+### AsyncParallelHook
 
-不需要等待上一个事件函数执行结束便可以执行下一个事件函数
+AsyncParallelHook 是一个并行的钩子。通过这个钩子注册的回调不需要等待上一个事件回调执行结束便可以执行下一个事件回调。
 
 ```javascript
 const { AsyncParallelHook } = require('tapable')
@@ -378,11 +396,11 @@ time: 2.015s
 */
 ```
 
-第一个事件设置了 2 秒的定时器再执行，此时会先执行后续的事件函数，等到 2 秒后再执行第一个事件函数。
+第一个事件设置了 2 秒的定时器再执行，此时会先执行后续的事件回调，等到 2 秒后再执行第一个事件回调。
 
-### AsyncParallelBailHook：是一个串行、保险类型的钩子
+### AsyncParallelBailHook
 
-若当前的事件函数的 **callback **的参数 **result !== undefined**，则后续的事件都不再执行。
+AsyncParallelBailHook 是一个串行、熔断类型的钩子。若当前的事件回调的 **callback** 的参数 **result !== undefined**，则后续的事件都不再执行。
 
 ```javascript
 const { AsyncParallelBailHook } = require('tapable')
@@ -425,7 +443,7 @@ time: 3.015s
 */
 ```
 
-由于第二个事件函数有返回值，因此第三个事件函数不会执行。<br />若第一个事件函数也有返回值，尽管是第二个事件函数先执行完成，但是 **callAsync** 拿到的结果依然是第一个事件函数的返回值，示例如下：
+由于第二个事件回调有返回值，因此第三个事件回调不会执行。若第一个事件回调也有返回值，尽管是第二个事件回调先执行完成，但是 **callAsync** 拿到的结果依然是第一个事件回调的返回值，示例如下：
 
 ```javascript
 const { AsyncParallelBailHook } = require('tapable')
@@ -467,3 +485,12 @@ hook.callAsync('wade', '25', (err, result) => {
 time: 3.009s
 */
 ```
+
+## 四、总结
+
+Tapable 提供的这些钩子，支持同步、异步、熔断、循环、waterfall 等功能特性，以此支撑起 webpack 复杂的编译功能，在理解这些内容之后，我们对 webpack 插件架构的设计会有进一步的理解和使用。
+
+## 参考资料
+
+https://juejin.cn/post/6955421936373465118
+https://github.com/webpack/tapable
