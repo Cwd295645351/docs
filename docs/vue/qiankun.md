@@ -1,10 +1,11 @@
 # qiankun 快速上手
 
-## 主应用改造
+## 一、主应用改造
 
-微应用列表
+首先需要维护一份微应用列表，里面包含了微应用的名称、入口和生效规则，若需要给子应用传递内容，可以在 props 传入对应的内容
 
 ```javascript
+// app.js
 const apps = [
   {
     name: 'micro-vue-app3',
@@ -18,9 +19,11 @@ const apps = [
 export default apps
 ```
 
-注册微应用
+有了微应用数据后，我们就开始注册微应用
 
 ```javascript
+// micro.js
+
 import { registerMicroApps, addGlobalUncaughtErrorHandler, start } from "qiankun"
 
 import apps from "./app"
@@ -51,12 +54,34 @@ addGlobalUncaughtErrorHandler((event: Event | string) => {
 })
 
 export default start
-
 ```
 
-## 子应用改造
+接下来，我们在项目的入口文件中启动微前端。
 
-### vue-cli 创建 vue3 子应用
+```js
+import { createApp } from 'vue'
+import router from './router'
+import startQiankun from './micro'
+import App from './App.vue'
+
+// start()
+startQiankun({
+  sandbox: {
+    experimentalStyleIsolation: true, // 样式隔离
+  },
+})
+
+const app = createApp(App)
+app.use(router)
+
+app.mount('#app')
+```
+
+## 二、子应用改造
+
+vue3 项目创建方式分为 vue-cli 创建和 vite 创建，vue-cli 底层是 webpack，两种方式创建的项目的改造内容不太一样，接下来便为各位介绍一下改造点。
+
+### 1. vue-cli 创建 vue3 子应用
 
 vue.config.js 配置，需要将输出文件格式改成 umd 库格式
 
@@ -93,7 +118,6 @@ if (window.__POWERED_BY_QIANKUN__) {
 `main.js`需要区分独立运行还是子应用运行
 
 ```javascript
-// @ts-nocheck
 import './public-path'
 import { createApp } from 'vue'
 import App from './App.vue'
@@ -135,7 +159,7 @@ export async function unmount() {
 }
 ```
 
-### vite 创建 vue3 子应用
+### 2. vite 创建 vue3 子应用
 
 vite 若要用在 qiankun 微前端，需要安装 `vite-plugin-qiankun` 插件支持，并修改 `vite.confit.ts`配置：
 
@@ -233,10 +257,34 @@ const router = createRouter({
 export default router
 ```
 
-## Actions 通信
+## 三、Actions 通信
 
 `qiankun` 内部提供了 `initGlobalState` 方法用于注册 `MicroAppStateActions` 实例用于通信，该实例有三个方法，分别是：
 
 - `setGlobalState`：设置 `globalState` - 设置新的值时，内部将执行 浅检查，如果检查到 `globalState` 发生改变则触发通知，通知到所有的 观察者 函数。
 - `onGlobalStateChange`：注册 观察者 函数 - 响应 `globalState` 变化，在 `globalState` 发生改变时触发该 观察者 函数。
 - `offGlobalStateChange`：取消 观察者 函数 - 该实例不再响应 `globalState` 变化。
+
+```js
+import { initGlobalState, MicroAppStateActions } from 'qiankun'
+
+const initialState = {}
+const actions = initGlobalState(initialState)
+
+const actions = actions.setGlobalState({
+  userInfo: { name: '改变用户', ssga: '2515' },
+  age: ++currentAge.value,
+})
+
+// onGlobalStateChange 第二个参数为 true，表示立即执行一次观察者函数
+actions.onGlobalStateChange((state) => {
+  console.log(state, 'state')
+  const { userInfo, age } = state
+  currUserInfo.value = userInfo
+  currentAge.value = age
+}, true)
+```
+
+## 四、总结
+
+本文介绍了 vue3 接入 qiankun 的方法，希望有助于个人初次上手了解。也有些人认为 vue3 结合 vite 的话，使用无界的方法会更好，有时间也会去看看如何使用，欢迎各位友好交流讨论！
