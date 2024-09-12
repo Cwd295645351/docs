@@ -11,6 +11,7 @@
 
 ## 专栏
 
+- [Vue3 编译原理揭秘](https://vue-compiler.iamouyang.cn/)
 - [精通 Webpack 核心原理](https://juejin.cn/column/6978684601921175583)
 - [深入前端工程化领域](https://juejin.cn/column/7093889330560630792)
 - [前端知识体系](https://juejin.cn/column/7140843956958396429)

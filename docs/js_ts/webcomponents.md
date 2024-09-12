@@ -1,5 +1,7 @@
 # Web Components
 
+## 前言
+
 Web Components 是一种用于构建可复用的定制元素的技术，它允许开发者创建自定义的 HTML 标签，提供了一种在不同框架和库中共享组件的方式。本文将介绍 Web Components 的基本概念、编写和生命周期方法，以及在普通使用和 Vue 框架中的应用方法。
 
 ## 一、什么是 Web Components？
@@ -69,7 +71,7 @@ customElements.define('my-custom-element', MyCustomElement)
 
 ### 3. 自定义事件
 
-在 Web Components 内部，可以通过自定义事件来进行与外部的通信。要在 Web Components 内部暴露自定义事件，可以使用`CustomEvent`类来创建并触发自定义事件。
+在 Web Components 内部，可以通过自定义事件来进行与外部的通信。要在 Web Components 内部暴露自定义事件，可以使用 `CustomEvent` 类来创建并触发自定义事件。
 
 ```javascript
 class MyCustomElement extends HTMLElement {
@@ -241,3 +243,11 @@ document.body.appendChild(
 `defineCustomElement` 也可以搭配 `SFC` 使用。一个以自定义元素模式加载的 `SFC` 将会内联其 `<style>` 标签为 `CSS` 字符串，并将其暴露为组件的 `styles` 选项。这会被 `defineCustomElement` 提取使用，并在初始化时注入到元素的 `shadow root` 上。
 
 开启该模式需要将组件文件以 `.ce.vue` 结尾
+
+## 总结
+
+单纯的 Web Components 的编写可以做到框架无关，但是这又会失去语言框架带来的便利性，Vue 提供的 `defineCustomElement` 方法能让我们在编写正常组件的同时生成框架无关的组件，这会轻松很多。
+
+## 参考资料
+
+https://developer.mozilla.org/zh-CN/docs/Web/API/Web_components

@@ -1,5 +1,7 @@
 # VS Code Prettier 代码格式化
 
+## 直接使用
+
 ```js
 // prettier.config.js or .prettierrc.js
 module.exports = {
@@ -39,4 +41,26 @@ module.exports = {
   // 换行符使用 lf
   endOfLine: 'lf',
 }
+```
+
+## 结合 ESLint
+
+安装依赖 `prettier` 和 `eslint-config-prettier`
+
+```bash
+npm i prettier eslint-config-prettier --save-dev
+```
+
+在 eslint（eslint 版本大于 9）配置文件中新增配置
+
+```js
+import tseslint from 'typescript-eslint'
+import prettier from 'eslint-config-prettier'
+
+export default [
+  ...tseslint.configs.recommended,
+  {
+    rules: prettier.rules,
+  },
+]
 ```
