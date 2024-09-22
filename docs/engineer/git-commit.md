@@ -208,24 +208,20 @@ module.exports = { extends: ['@commitlint/config-conventional'] }
 
 - 配置 `husky`：
 
-执行 `npx husky install` 命令，完成 `husky` 的初始化。
+执行 `npx husky init` 命令，完成 `husky` 的初始化。
 
 ```bash
-npx husky install
+npx husky init
 ```
 
 此时项目根目录会生成 `.husky` 目录，目录内容如下
 
 ![husky 目录](https://cdn.jsdelivr.net/gh/Cwd295645351/picx-images-hosting@master/block/image.sywgm1ntw.webp)
 
-接着修改 `.husky/_/commit-msg` 文件，内容如下：
+接着设置 `commit-msg hook`，内容如下：
 
 ```bash
-#!/usr/bin/env sh
-
-. "${0%/*}/husky.sh"
-
-npx --no -- commitlint -e $HUSKY_GIT_PARAMS
+echo "npx --no --l commitlint -e $HUSKY_GIT_PARAMS" > .husky/commit-msg
 ```
 
 通过以上步骤，你可以规范化提交信息并自定义提交格式，同时通过 commitlint 和 husky 实现提交信息的自动校验。，若提交信息不规范则不允许提交。
@@ -262,9 +258,6 @@ module.exports = {
 最后修改 `.husky/pre-commit`文件：
 
 ```bash
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 # npm run lint
 npx lint-staged
 ```
