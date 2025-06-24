@@ -1,6 +1,6 @@
 # vite 原理
 
-## 实现原理
+## 一、实现原理
 
 它是基于浏览器的 type 为 module 的 script 可以直接下载 es module 模块实现的。
 
@@ -22,7 +22,7 @@
 
 回想下，不管是基于浏览器 es module import 实现的编译服务，基于 esbuild 做的依赖预构建，基于 hash query 做的强缓存和缓存更新，还是兼容 rollup 的 vite 插件可以在开发服务和 rollup 里同时跑，这些功能实现都挺巧妙的。
 
-## 依赖预构建
+## 二、依赖预构建
 
 由于 vite 的服务器将所有代码视为原生 ES 模块，因此需要将 CommonJS 或 UMD 发布的依赖项转化成 ESM。
 
@@ -41,7 +41,7 @@ vite 就借助了 esbuild 库(esbuild 是一个对 js 语法处理的库)，对�
 
 只有在上述其中一项发生更改时，才需要重新运行预构建。
 
-## 环境变量
+## 三、环境变量
 
 vite 对环境变量的处理是借助于第三方库 dotenv 实现的，执行命令的时候，dotenv 会去读取 .env 文件，然后注入到 process 对象当中。用户可以使用 import.meta.env 去获取环境变量。下面是内建变量：
 
@@ -64,7 +64,19 @@ console.log(import.meta.env.VITE_SOME_KEY) // "123"
 console.log(import.meta.env.DB_PASSWORD) // undefined
 ```
 
-## vite 插件系统
+## 四、vite 插件系统
+
+开发阶段，Vite 会调用一系列与 Rollup 兼容的钩子，这个钩子主要分为三个阶段：
+
+- **服务器启动阶段**: options 和 buildStart 钩子会在服务启动时被调用。
+- **请求响应阶段**: 当浏览器发起请求时，Vite 内部依次调用 resolveId、load 和 transform 钩子。
+- **服务器关闭阶段**: Vite 会依次执行 buildEnd 和 closeBundle 钩子。除了以上钩子，其他 Rollup 插件钩子(如 moduleParsed、renderChunk )均不会在 Vite 开发阶段调用。
+
+插件执行顺序如下
+
+![插件执行顺序](https://github.com/Cwd295645351/picx-images-hosting/raw/master/1750399761061.70almb6gho.webp)
+
+而生产环境下，由于 Vite 直接使用 Rollup，Vite 插件中所有 Rollup 的插件钩子都会生效。
 
 vite 插件编写时需要返回一个对象，对象包含了插件名称、插件执行时机和钩子函数。如下：
 
@@ -72,9 +84,9 @@ vite 插件编写时需要返回一个对象，对象包含了插件名称、插
 {
   name: 'vite-aliases', // 插件名字
   enforce: 'pre', // 插件执行顺序
-  config(config, { command }) { // vite特有的config钩子，config为默认配置，command为命令
+  config(config, { command }) { // vite 特有的 config 钩子，config 为默认配置，command 为命令
     gen = new Generator(command, options);
-    gen.init(); // 调用init，读取root目录，生成数组对象
+    gen.init(); // 调用 init，读取 root 目录，生成数组对象
     config.resolve = {
       alias: config.resolve?.alias  // 有alias就合并
         ? [
@@ -93,7 +105,178 @@ enfore 修饰符表示插件调用的时机：
 - 默认：在 Vite 核心插件之后调用该插件
 - post：在 Vite 构建插件之后调用该插件
 
-## vite 命令行指令
+Vite 独有的五个钩子
+
+- **config**: 用来进一步修改配置。
+- **configResolved**: 用来记录最终的配置信息。
+- **configureServer**: 用来获取 Vite Dev Server 实例，添加中间件。
+- **transformIndexHtml**: 用来转换 HTML 的内容。
+- **handleHotUpdate**: 用来进行热更新模块的过滤，或者进行自定义的热更新处理。
+
+### 1.config
+
+Vite 在读取完配置文件（即 vite.config.ts ）之后，会拿到用户导出的配置对象，然后执行 config 钩子。在这个钩子里面，可以对配置文件导出的对象进行自定义的操作，如下代码所示:
+
+```js
+const mutateConfigPlugin = () => ({
+  name: 'mutate-config', // command 为 `serve`(开发环境) 或者 `build`(生产环境)
+  // 用法一
+  config: () => ({
+    alias: {
+      react: require.resolve('react'),
+    },
+  }),
+  // 用法二
+  config(config, { command }) {
+    // 生产环境中修改 root 参数
+    if (command === 'build') {
+      config.root = __dirname
+    }
+  },
+  // 用法三
+  config() {
+    return {
+      optimizeDeps: {
+        esbuildOptions: {
+          plugins: [],
+        },
+      },
+    }
+  },
+})
+```
+
+### 2.configResolved
+
+Vite 在解析完配置之后会调用 configResolved 钩子，这个钩子一般用来记录最终的配置信息，而不建议再修改配置，用法如下。
+
+```js
+const exmaplePlugin = () => {
+  let config
+  return {
+    name: 'read-config',
+    configResolved(resolvedConfig) {
+      // 记录最终配置
+      config = resolvedConfig
+    }, // 在其他钩子中可以访问到配置
+    transform(code, id) {
+      console.log(config)
+    },
+  }
+}
+```
+
+### 3.configureServer
+
+这个钩子仅在开发阶段会被调用，用于扩展 Vite 的 Dev Server，一般用于增加自定义 server 中间件，如下代码：
+
+```js
+const myPlugin = () => ({
+  name: 'configure-server',
+  configureServer(server) {
+    // 姿势 1: 在 Vite 内置中间件之前执行
+    server.middlewares.use((req, res, next) => {
+      // 自定义请求处理逻辑
+    })
+    // 姿势 2: 在 Vite 内置中间件之后执行
+    return () => {
+      server.middlewares.use((req, res, next) => {
+        // 自定义请求处理逻辑
+      })
+    }
+  },
+})
+```
+
+### 4.transformIndexHtml
+
+transformIndexHtml 钩子用来灵活控制 HTML 的内容，你可以拿到原始的 html 内容后进行任意的转换：
+
+```js
+const htmlPlugin = () => {
+  return {
+    name: 'html-transform',
+    transformIndexHtml(html) {
+      returnhtml.replace(/<title>(.*?)<\/title>/, `<title>换了个标题</title>`)
+    },
+  }
+}
+```
+
+也可以返回如下的对象结构，一般用于添加某些标签
+
+```js
+import { UserConfig, IndexHtmlTransformHook } from 'vite'
+
+const loadConfigPlugin = () => {
+  let _mode: 'development' | 'production'
+  return {
+    name: 'load-config',
+    config(config: UserConfig, env: { mode: 'development' | 'production' }) {
+      _mode = mode
+    },
+    transformIndexHtml(html: IndexHtmlTransformHook) {
+      const configSrc = _mode === 'development' ? './config.local.ts' : './config.ts'
+      return {
+        html,
+        //注入标签
+        tags: [
+          {
+            //放到body末尾，可取值还有`head`|`head-prepend`|`body-prepend`，顾名思义
+            injectTo: 'body',
+            //标签属性定义
+            attrs: { type: 'module', src: configSrc },
+            //标签名
+            tag: 'script',
+          },
+        ],
+      }
+    },
+  }
+}
+
+export { loadConfigPlugin }
+```
+
+### 5.handleHotUpdate
+
+handleHotUpdate 钩子主要用在服务区热更新，这个钩子会在 Vite 服务端处理热更新时被调用，你可以在这个钩子中拿到热更新相关的上下文信息，进行热更模块的过滤，或者进行自定义的热更处理。
+
+```js
+const handleHmrPlugin = () => {
+  return {
+    async handleHotUpdate(ctx) {
+      // 需要热更的文件
+      console.log(ctx.file) // 需要热更的模块，如一个 Vue 单文件会涉及多个模块
+      console.log(ctx.modules) // 时间戳
+      console.log(ctx.timestamp) // Vite Dev Server 实例
+      console.log(ctx.server) // 读取最新的文件内容
+      console.log(await read()) // 自行处理 HMR 事件
+      ctx.server.ws.send({
+        type: 'custom',
+        event: 'special-update',
+        data: { a: 1 },
+      })
+      return []
+    },
+  }
+}
+```
+
+前端代码中加入
+
+```js
+if (import.meta.hot) {
+  import.meta.hot.on('special-update', (data) => {
+    // 执行自定义更新
+    // { a: 1 }
+    console.log(data)
+    window.location.reload()
+  })
+}
+```
+
+## 五、vite 命令行指令
 
 `vite dev` 和 `vite serve` 是 `vite` 的别名，其额外选项如下：
 

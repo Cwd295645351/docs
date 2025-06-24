@@ -185,12 +185,12 @@ export default [
 
 ## 四、使用预定义配置
 
-<font style="color:#262626;">ESLint 有两个预定义的 JavaScript 配置：</font>
+ESLint 有两个预定义的 JavaScript 配置：
 
-- `<font style="color:#262626;">js.configs.recommended</font>`<font style="color:#262626;"> </font><font style="color:#262626;">- 启用 ESLint 建议每个人使用的规则，以避免潜在的错误</font>
-- `<font style="color:#262626;">js.configs.all</font>`<font style="color:#262626;"> </font><font style="color:#262626;">- 启用 ESLint 附带的所有规则</font>
+- `js.configs.recommended` - 启用 ESLint 建议每个人使用的规则，以避免潜在的错误
+- `js.configs.all` - 启用 ESLint 附带的所有规则
 
-<font style="color:#262626;">要包含这些预定义配置，请安装 </font>`<font style="color:#262626;">@eslint/js</font>`<font style="color:#262626;"> 包，然后对后续配置对象中的其他属性进行任何修改：</font>
+要包含这些预定义配置，请安装 `@eslint/js` 包，然后对后续配置对象中的其他属性进行任何修改：
 
 ```javascript
 import js from '@eslint/js'

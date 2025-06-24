@@ -20,9 +20,20 @@ requireComponent.keys().forEach((fileName) => {
 
 - `vite` 项目中读取某个文件夹下的特定文件的写法如下：
 
+vite 版本大于 2 用法：
+
 ```js
 const modules = import.meta.glob('./dir/*.js'， {eager: true})
 Object.keys(modules).forEach((path: any) => {
   const module =  modules[path].default
 })
+```
+
+vite 版本处于 2 用法：
+
+```js
+const routeModules = import.meta.globEager('@/views/**/router.js')
+const routes = Object.keys(routeModules)
+  .map((key) => routeModules[key].default)
+  .flat()
 ```

@@ -105,7 +105,6 @@ module.exports = {
     { value: '开发中', name: '开发中:  功能正在开发，还未完成' },
   ],
 
-  // 以本小册的课程内容进行 scopes 的拆分
   // 如果是组件库，则可以根据组件的名称进行拆分
   // 如果是框架库，也可以根据框架库的模块内容进行拆分
   // 例如这里的框架设计还可以细分为 框架设计(沙箱)、框架设计(性能优化)、框架设计(通信)
@@ -216,7 +215,7 @@ npx husky init
 
 此时项目根目录会生成 `.husky` 目录，目录内容如下
 
-![husky 目录](https://cdn.jsdelivr.net/gh/Cwd295645351/picx-images-hosting@master/block/image.sywgm1ntw.webp)
+![husky 目录](https://github.com/Cwd295645351/picx-images-hosting/raw/master/image.86twuy0ygi.webp)
 
 接着设置 `commit-msg hook`，内容如下：
 
